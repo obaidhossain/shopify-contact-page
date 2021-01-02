@@ -1,0 +1,385 @@
+{% for block in section.blocks %}
+  {% if block.type == 'description' %}
+	<div class="page_block__description">
+      {{ block.settings.text }}
+	</div>
+
+  {% elsif block.type == 'grid_start' %}
+	<div class="grid">
+      
+  {% elsif block.type == 'grid_end' or block.type == 'grid_layout_end' %}
+	</div>
+
+  {% elsif block.type == 'grid_layout' %}
+	<div class="grid__item medium-up--{{ block.settings.layout }}">
+      
+  {% elsif block.type == 'form_start' %}
+      <div class="contact-form form-vertical">
+        {% form 'contact' %}
+        <div class="grid__item medium-up--one-whole">
+        {% if form.posted_successfully? %}
+          <p class="form-success">
+            {{ 'contact.form.post_success' | t }}
+          </p>
+        {% endif %}
+
+        {{ form.errors | default_errors }}
+        </div>
+		<!--{% endform %}-->
+      
+  {% elsif block.type == 'form_end' %}
+        <!--{% form 'contact' %}-->
+		{% endform %}
+      </div>
+      
+  {% elsif block.type == 'form_text' %}
+      <label for="{{ block.settings.label | handleize }}" class="label--hidden">{{ block.settings.label }}</label>
+      <input type="text" id="{{ block.settings.label | handleize }}" name="contact[{{ block.settings.label | handleize }}]" placeholder="{{ block.settings.placeholder }}"{% if block.settings.label contains 'name' %} value="{% if form[name] %}{{ form[name] }}{% elsif customer %}{{ customer.name }}{% endif %}"{% endif %}{% if block.settings.required %} required{% endif %}>
+      
+  {% elsif block.type == 'form_date' %}
+      <label for="{{ block.settings.label | handleize }}" class="label--hidden">{{ block.settings.label }}</label>
+      <input type="date" id="{{ block.settings.label | handleize }}" name="contact[{{ block.settings.label | handleize }}]" placeholder="{{ block.settings.placeholder }}"{% if block.settings.required %} required{% endif %}>
+      
+  {% elsif block.type == 'form_number' %}
+      <label for="{{ block.settings.label | handleize }}" class="label--hidden">{{ block.settings.label }}</label>
+      <input type="number" id="{{ block.settings.label | handleize }}" name="contact[{{ block.settings.label | handleize }}]" placeholder="{{ block.settings.placeholder }}" pattern="[0-9]*"{% if block.settings.required %} required{% endif %}>
+      
+  {% elsif block.type == 'form_email' %}
+      <label for="{{ block.settings.label | handleize }}" class="label--hidden">{{ block.settings.label }}</label>
+      <input type="email" id="{{ block.settings.label | handleize }}" name="contact[{{ block.settings.label | handleize }}]" placeholder="{{ block.settings.placeholder }}" autocorrect="off" autocapitalize="off" value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"{% if block.settings.required %} required{% endif %}>
+     
+  {% elsif block.type == 'form_phone' %}
+      <label for="{{ block.settings.label | handleize }}" class="label--hidden">{{ block.settings.label }}</label>
+      <input type="tel" id="{{ block.settings.label | handleize }}" name="contact[{{ block.settings.label | handleize }}]" placeholder="{{ block.settings.placeholder }}" pattern="[0-9\-]*" value="{% if form[phone] %}{{ form[phone] }}{% elsif customer %}{{ customer.phone }}{% endif %}"{% if block.settings.required %} required{% endif %}>
+     
+  {% elsif block.type == 'form_textarea' %}
+      <label for="{{ block.settings.label | handleize }}" class="label--hidden">{{ block.settings.label }}</label>
+      <textarea rows="{{ block.settings.rows }}" id="{{ block.settings.label | handleize }}" name="contact[{{ block.settings.label | handleize }}]" placeholder="{{ block.settings.placeholder }}"{% if block.settings.required %} required{% endif %}></textarea>
+     
+  {% elsif block.type == 'form_select' %}
+      <label for="{{ block.settings.label | handleize }}" class="label--hidden">{{ block.settings.label }}</label>
+      {% if block.settings.field_before != blank %}<span>{{ block.settings.field_before }}</span>{% endif %}
+        {% assign options = block.settings.options | newline_to_br | split:'<br />' %}
+        {% if options.size > 1 %}
+        <select id="{{ block.settings.label | handleize }}" class="select__inline" name="contact[{{ block.settings.label | handleize }}]"{% if block.settings.required %} required{% endif %}>
+          {% for option in options %}
+          <option value="{{ option | handleize }}">{{ option }}</option>
+          {% endfor %}
+        </select>
+        {% endif %}
+      {% if block.settings.field_after != blank %}<span>{{ block.settings.field_after }}</span>{% endif %}
+     
+  {% elsif block.type == 'space' %}
+      <div style="height:{{ block.settings.height }}px"></div>
+     
+  {% elsif block.type == 'form_submit' %}
+      <input type="submit" class="btn" value="{{ block.settings.label }}">
+     
+  {% endif %}
+{% endfor %}
+
+{% schema %}
+{
+  "name": "Consignment Request",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Visual Builder",
+	  "info": "Add blocks with your requirements"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "description",
+      "name": "Description",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Content"
+        }
+      ]
+    },
+    {
+      "type": "grid_start",
+      "name": "Grid Start",
+      "settings": [
+        {
+          "type": "header",
+      	  "content": "Grid",
+          "info": "Use Before Layout"
+        }
+      ]
+    },
+    {
+      "type": "grid_end",
+      "name": "Grid End",
+      "settings": [
+        {
+          "type": "header",
+      	  "content": "Grid",
+          "info": "Use After Layout"
+        }
+      ]
+    },
+    {
+      "type": "grid_layout",
+      "name": "Grid Layout Start",
+      "settings": [
+        {
+          "type": "header",
+      	  "content": "Grid",
+          "info": "Use Before Grid Content"
+        },
+        {
+           "type": "select",
+           "id": "layout",
+           "label": "Layout",
+           "options": [
+             {
+               "value": "one-whole",
+               "label": "100%"
+             },
+             {
+               "value": "three-quarters",
+               "label": "75%"
+             },
+             {
+               "value": "one-half",
+               "label": "50%"
+             },
+             {
+               "value": "one-third",
+               "label": "33%"
+             },
+             {
+               "value": "one-quarter",
+               "label": "25%"
+             }
+           ],
+           "default": "one-whole"
+        }
+      ]
+    },
+    {
+      "type": "grid_layout_end",
+      "name": "Grid Layout End",
+      "settings": [
+        {
+          "type": "header",
+      	  "content": "Grid",
+          "info": "Use After Grid Content"
+        }
+      ]
+    },
+    {
+      "type": "form_start",
+      "name": "Form Start",
+      "settings": [
+        {
+          "type": "header",
+      	  "content": "Form",
+          "info": "Form Start"
+        }
+      ]
+    },
+    {
+      "type": "form_end",
+      "name": "Form End",
+      "settings": [
+        {
+          "type": "header",
+      	  "content": "Form",
+          "info": "Form End"
+        }
+      ]
+    },
+    {
+      "type": "space",
+      "name": "Empty Space",
+      "settings": [
+        {
+          "type": "number",
+      	  "id": "height",
+          "label": "Height"
+        }
+      ]
+    },
+    {
+      "type": "form_text",
+      "name": "Text Field",
+      "settings": [
+        {
+          "type": "checkbox",
+      	  "id": "required",
+          "label": "Required?"
+        },
+        {
+          "type": "text",
+      	  "id": "label",
+          "label": "Field Name"
+        },
+        {
+          "type": "text",
+      	  "id": "placeholder",
+          "label": "Field Placeholder"
+        }
+      ]
+    },
+    {
+      "type": "form_date",
+      "name": "Date Field",
+      "settings": [
+        {
+          "type": "checkbox",
+      	  "id": "required",
+          "label": "Required?"
+        },
+        {
+          "type": "text",
+      	  "id": "label",
+          "label": "Field Name"
+        },
+        {
+          "type": "text",
+      	  "id": "placeholder",
+          "label": "Field Placeholder"
+        }
+      ]
+    },
+    {
+      "type": "form_number",
+      "name": "Number Field",
+      "settings": [
+        {
+          "type": "checkbox",
+      	  "id": "required",
+          "label": "Required?"
+        },
+        {
+          "type": "text",
+      	  "id": "label",
+          "label": "Field Name"
+        },
+        {
+          "type": "text",
+      	  "id": "placeholder",
+          "label": "Field Placeholder"
+        }
+      ]
+    },
+    {
+      "type": "form_phone",
+      "name": "Phone Field",
+      "settings": [
+        {
+          "type": "checkbox",
+      	  "id": "required",
+          "label": "Required?"
+        },
+        {
+          "type": "text",
+      	  "id": "label",
+          "label": "Field Name"
+        },
+        {
+          "type": "text",
+      	  "id": "placeholder",
+          "label": "Field Placeholder"
+        }
+      ]
+    },
+    {
+      "type": "form_email",
+      "name": "Email Field",
+      "settings": [
+        {
+          "type": "checkbox",
+      	  "id": "required",
+          "label": "Required?"
+        },
+        {
+          "type": "text",
+      	  "id": "label",
+          "label": "Field Name"
+        },
+        {
+          "type": "text",
+      	  "id": "placeholder",
+          "label": "Field Placeholder"
+        }
+      ]
+    },
+    {
+      "type": "form_textarea",
+      "name": "Textarea Field",
+      "settings": [
+        {
+          "type": "checkbox",
+      	  "id": "required",
+          "label": "Required?"
+        },
+        {
+          "type": "text",
+      	  "id": "label",
+          "label": "Field Name"
+        },
+        {
+          "type": "text",
+      	  "id": "placeholder",
+          "label": "Field Placeholder"
+        },
+        {
+          "type": "number",
+      	  "id": "rows",
+          "label": "Rows",
+      	  "default": 10
+        }
+      ]
+    },
+    {
+      "type": "form_select",
+      "name": "Select Field",
+      "settings": [
+        {
+          "type": "checkbox",
+      	  "id": "required",
+          "label": "Required?"
+        },
+        {
+          "type": "textarea",
+      	  "id": "field_before",
+          "label": "Field Before"
+        },
+        {
+          "type": "textarea",
+      	  "id": "field_after",
+          "label": "Field After"
+        },
+        {
+          "type": "text",
+      	  "id": "label",
+          "label": "Field Name"
+        },
+        {
+          "type": "textarea",
+      	  "id": "options",
+          "label": "Options",
+      	  "info": "One Each Line"
+        }
+      ]
+    },
+    {
+      "type": "form_submit",
+      "name": "Submit Button",
+      "settings": [
+        {
+          "type": "text",
+      	  "id": "label",
+          "label": "Name"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
